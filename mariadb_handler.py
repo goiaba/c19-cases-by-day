@@ -16,8 +16,7 @@ class MariaDBHandler(object):
     def batch_insert(self, data: list):
         if data:
             stmt = """INSERT INTO covid_cases_history (idCountry, idState, idCity, cases, entranceDate)
-                                  VALUES (%(idCountry)s, %(idState)s, %(idCity)s,
-                                          %(dailyCasesGrowth)s, %(entranceDate)s)"""
+                           VALUES (%(idCountry)s, %(idState)s, %(idCity)s, %(dailyCasesGrowth)s, %(entranceDate)s)"""
             self._batch_executor(stmt, data)
 
     def batch_update(self, data: list):
