@@ -57,10 +57,10 @@ class FSHandler(object):
         elif self._start_datetime != datetime.min:
             # we add to the list the last file used to populate the history table in order to use it as a baseline
             datetimes.append(self._start_datetime)
-        return list(map(lambda e: f"csv_dados_{time_to_fsstr(e)}.zip", sorted(datetimes)))
+        return list(map(lambda e: os.path.join(self._path, f"csv_dados_{time_to_fsstr(e)}.zip"), sorted(datetimes)))
 
     def get_data_from_csv(self, zip_filename):
-        csv_filename = _extract_csv_from_zip(os.path.join(self._path, zip_filename), "/tmp")
+        csv_filename = _extract_csv_from_zip(zip_filename, "/tmp")
         with open(csv_filename) as csv_file:
             header = csv_file.readline()\
                 .replace("\"", "")\
