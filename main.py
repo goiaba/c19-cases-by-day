@@ -2,7 +2,7 @@ import logging
 import os
 from util import time_to_mdbstr
 from config import CSV_FILES_PATH, LOG_LEVEL
-from fs_handler import FSHandler, datetime_from_filename
+from fs_handler import FSHandler, datetime_from_filename, get_data_from_csv
 from mariadb_handler import MariaDBHandler
 
 
@@ -15,7 +15,7 @@ cur_data: dict = {}
 
 for file in fs_handler.get_files_to_process():
     logging.info(f"Processing file {file}.")
-    new_data: dict = fs_handler.get_data_from_csv(file)
+    new_data: dict = get_data_from_csv(file)
     file_datetime: str = time_to_mdbstr(datetime_from_filename(file))
     db_data: list = []
     for id_city, data in new_data.items():

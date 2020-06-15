@@ -29,6 +29,24 @@ def datetime_from_filename(filename: str) -> datetime:
         return None
 
 
+def get_data_from_csv(zip_filename):
+    csv_filename = _extract_csv_from_zip(zip_filename, "/tmp")
+    with open(csv_filename) as csv_file:
+        header = csv_file.readline()\
+            .replace("\"", "")\
+            .replace("\n", "")\
+            .replace("confirmed", "cases")\
+            .replace("lastUpdate", "entranceDate")\
+            .split(",")
+        csv_reader = csv.reader(csv_file, delimiter=",")
+        attrs_index = {a: header.index(a) for a in ["idCountry", "idState", "idCity", "cases", "entranceDate"]}
+        data_dict = {}
+        for line_number, row in enumerate(csv_reader):
+            data_dict[int(row[attrs_index["idCity"]])] = {a: row[v] for a, v in attrs_index.items()}
+        logging.info(f"Processed {line_number} lines from filesystem.")
+    return data_dict
+
+
 class FSHandler(object):
     def __init__(self, path: str, previous_datetime: datetime = None, start_datetime: datetime = None):
         self._path: str = path
@@ -58,20 +76,3 @@ class FSHandler(object):
             # we add to the list the last file used to populate the history table in order to use it as a baseline
             datetimes.append(self._start_datetime)
         return list(map(lambda e: os.path.join(self._path, f"csv_dados_{time_to_fsstr(e)}.zip"), sorted(datetimes)))
-
-    def get_data_from_csv(self, zip_filename):
-        csv_filename = _extract_csv_from_zip(zip_filename, "/tmp")
-        with open(csv_filename) as csv_file:
-            header = csv_file.readline()\
-                .replace("\"", "")\
-                .replace("\n", "")\
-                .replace("confirmed", "cases")\
-                .replace("lastUpdate", "entranceDate")\
-                .split(",")
-            csv_reader = csv.reader(csv_file, delimiter=",")
-            attrs_index = {a: header.index(a) for a in ["idCountry", "idState", "idCity", "cases", "entranceDate"]}
-            data_dict = {}
-            for line_number, row in enumerate(csv_reader):
-                data_dict[int(row[attrs_index["idCity"]])] = {a: row[v] for a, v in attrs_index.items()}
-            logging.info(f"Processed {line_number} lines from filesystem.")
-        return data_dict
