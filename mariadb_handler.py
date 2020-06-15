@@ -41,6 +41,7 @@ class MariaDBHandler(object):
         return previous, latest
 
     def _query_executor(self, query: str, data: tuple = None) -> list:
+        connection: mariadb.connector = None
         try:
             connection = mariadb.connect(
                 host=self._host, database=self._database, user=self._user, password=self._password)
@@ -51,11 +52,12 @@ class MariaDBHandler(object):
             logging.error("Error reading data from MariaDB table.")
             raise error
         finally:
-            if connection.is_connected():
+            if connection and connection.is_connected():
                 connection.close()
                 cursor.close()
 
     def _batch_executor(self, statement: str, data: list):
+        connection: mariadb.connector = None
         try:
             connection = mariadb.connect(
                 host=self._host, database=self._database, user=self._user, password=self._password)
@@ -66,6 +68,6 @@ class MariaDBHandler(object):
             logging.error("Failed to execute batch statement.")
             raise error
         finally:
-            if connection.is_connected():
+            if connection and connection.is_connected():
                 connection.close()
                 cursor.close()
