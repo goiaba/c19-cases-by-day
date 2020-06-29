@@ -4,7 +4,6 @@ from util import time_to_mdbstr
 from config import CSV_FILES_PATH, LOG_LEVEL
 from fs_handler import FSHandler, datetime_from_filename, get_data_from_csv
 from mariadb_handler import MariaDBHandler
-from plot_handler import PlotHandler
 
 
 logging.basicConfig(level=LOG_LEVEL)
@@ -13,8 +12,6 @@ db_handler = MariaDBHandler(host=os.environ.get("DB_HOST", "localhost"), databas
 previous_datetime, start_datetime = db_handler.get_latest_and_previous_entrance_date()
 fs_handler = FSHandler(CSV_FILES_PATH, previous_datetime, start_datetime)
 cur_data: dict = {}
-
-pl_handler = PlotHandler(db_handler=db_handler)
 
 for file in fs_handler.get_files_to_process():
     logging.info(f"Processing file {file}.")
@@ -41,4 +38,3 @@ for file in fs_handler.get_files_to_process():
         db_handler.batch_update(db_data)
     else:
         db_handler.batch_insert(db_data)
-    pl_handler.save_images(file_datetime)
