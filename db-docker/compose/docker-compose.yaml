@@ -1,0 +1,11 @@
+version: '3'
+services:
+  mysql-development:
+    image: mariadb:10.1.44
+    environment:
+      MYSQL_ROOT_PASSWORD: "${DB_PASS}"
+      MYSQL_DATABASE: covid
+    ports:
+      - "3306:3306"
+    volumes:
+      - ../files/:/files
