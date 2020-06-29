@@ -10,6 +10,7 @@ from fs_handler import zip_directory_and_rm_src, get_country_shape_file_path, ge
     get_images_tmp_filename, create_images_tmp_path, get_images_tmp_path, get_zip_file_name
 from mariadb_handler import MariaDBHandler
 from shapely.geometry import Point
+from util import time_to_mdbstr
 
 
 logging.basicConfig(level=LOG_LEVEL)
@@ -61,7 +62,8 @@ def _save_image(shape: gpd.GeoDataFrame, data: gpd.GeoDataFrame, output_file: st
 
 class PlotHandler(object):
 
-    def __init__(self, host: str, database: str, user: str, password: str, db_handler: MariaDBHandler = None):
+    def __init__(self, host: str = None, database: str = None, user: str = None, password: str = None,
+                 db_handler: MariaDBHandler = None):
         if db_handler:
             self._db_handler = db_handler
         else:
@@ -103,6 +105,6 @@ if __name__ == "__main__":
     plh = PlotHandler(db_handler=dbh)
     ed = dbh.get_latest_and_previous_entrance_date()[0]
     if ed:
-        plh.save_images(ed)
+        plh.save_images(time_to_mdbstr(ed))
     else:
         logging.info("Database appears to be empty. No 'entranceDate' retrieved.")
