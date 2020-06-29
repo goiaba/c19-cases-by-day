@@ -42,7 +42,7 @@ def create_images_tmp_path(entrance_date: str):
 
 def get_zip_file_name(entrance_date: str):
     dt_str = time_to_fsstr(mdbstr_to_time(entrance_date))
-    return os.path.join(PLOT.get("images_zip_output_path"), f"{dt_str}_images.zip")
+    return os.path.join(PLOT.get("images_zip_output_path"), f"images_{dt_str}.zip")
 
 
 def datetime_from_filename(filename: str) -> datetime:
