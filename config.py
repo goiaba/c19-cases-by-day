@@ -5,4 +5,9 @@ CSV_FILES_PATH = "/home/bruno/CloudStorage/GitHub/Midev/web/rsync-var-www-html/v
 DATETIME_PATTERN = "%d_%m_%Y-%H_%M_%S"
 MARIADB_DATETIME_PATTERN = "%Y-%m-%d %H:%M:%S"
 ZIP_FILENAME_PATTERN = "csv_dados_(.._.._20..-.._.._..)\.zip"
-LOG_LEVEL=logging.DEBUG
+LOG_LEVEL = logging.DEBUG
+PLOT = {
+    "images_zip_output_path": "images",
+    "images_tmp_path": "/tmp",
+    "shape_files_path": "shapefiles"
+}

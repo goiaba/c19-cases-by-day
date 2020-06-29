@@ -1,6 +1,9 @@
+from config import LOG_LEVEL
+from datetime import datetime
 import logging
 import mysql.connector as mariadb
-from config import LOG_LEVEL
+import pandas
+
 
 logging.basicConfig(level=LOG_LEVEL)
 
@@ -39,6 +42,23 @@ class MariaDBHandler(object):
             records = self._query_executor(query)
             previous = records[0][0] if records[0][0] else None
         return previous, latest
+
+    def get_cases_by_entrance_date(self, entrance_date: datetime) -> pandas.io.sql:
+        query = """SELECT c.idCountry, c.idState, c.latitude, c.longitude, h.cases
+                     FROM cities c, covid_cases_history h
+                    WHERE c.idCity = h.idCity
+                      AND h.entranceDate = %(entrance_date)s"""
+        connection: mariadb.connector = None
+        try:
+            connection = mariadb.connect(
+                host=self._host, database=self._database, user=self._user, password=self._password)
+            return pandas.read_sql(query, con=connection, params={"entrance_date": entrance_date})
+        except mariadb.Error as error:
+            logging.error("Error reading data from MariaDB table.")
+            raise error
+        finally:
+            if connection and connection.is_connected():
+                connection.close()
 
     def _query_executor(self, query: str, data: tuple = None) -> list:
         connection: mariadb.connector = None
