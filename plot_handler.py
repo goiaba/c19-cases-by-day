@@ -102,4 +102,7 @@ if __name__ == "__main__":
                          user=os.environ.get("DB_USER", "root"), password=os.environ.get("DB_PASS", "root"))
     plh = PlotHandler(db_handler=dbh)
     ed = dbh.get_latest_and_previous_entrance_date()[0]
-    plh.save_images(ed)
+    if ed:
+        plh.save_images(ed)
+    else:
+        logging.info("Database appears to be empty. No 'entranceDate' retrieved.")
