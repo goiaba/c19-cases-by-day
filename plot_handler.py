@@ -103,7 +103,7 @@ if __name__ == "__main__":
     dbh = MariaDBHandler(host=os.environ.get("DB_HOST", "localhost"), database=os.environ.get("DB_NAME", "covid"),
                          user=os.environ.get("DB_USER", "root"), password=os.environ.get("DB_PASS", "root"))
     plh = PlotHandler(db_handler=dbh)
-    ed = dbh.get_latest_and_previous_entrance_date()[0]
+    ed = dbh.get_latest_and_previous_entrance_date()[1]
     if ed:
         plh.save_images(time_to_mdbstr(ed))
     else:
