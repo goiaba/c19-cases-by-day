@@ -7,7 +7,7 @@ MARIADB_DATETIME_PATTERN = "%Y-%m-%d %H:%M:%S"
 ZIP_FILENAME_PATTERN = "csv_dados_(.._.._20..-.._.._..)\.zip"
 LOG_LEVEL = logging.DEBUG
 PLOT = {
-    "images_zip_output_path": "images",
+    "images_output_path": "images",
     "images_tmp_path": "/tmp",
     "shape_files_path": "shapefiles"
 }

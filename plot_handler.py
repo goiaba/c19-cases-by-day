@@ -6,8 +6,7 @@ import os
 import pandas
 from config import LOG_LEVEL
 from datetime import datetime
-from fs_handler import zip_directory_and_rm_src, get_country_shape_file_path, get_state_shape_file_path,\
-    get_images_tmp_filename, create_images_tmp_path, get_images_tmp_path, get_zip_file_name
+from fs_handler import get_country_shape_file_path, get_state_shape_file_path, get_images_dst_filename
 from mariadb_handler import MariaDBHandler
 from shapely.geometry import Point
 from util import time_to_mdbstr
@@ -74,10 +73,9 @@ class PlotHandler(object):
         if df.empty:
             logging.info(f"Empty result returned to the defined entrance_date ('{entrance_date}').")
         else:
-            create_images_tmp_path(entrance_date)
             brl_cases = gpd.GeoDataFrame(df)
             brl_states_shape = gpd.read_file(get_country_shape_file_path())
-            _save_image(brl_states_shape, brl_cases, get_images_tmp_filename(entrance_date, "BR"))
+            _save_image(brl_states_shape, brl_cases, get_images_dst_filename(entrance_date, "BR"))
             # TODO: Replace this naive implementation by something that performs better.
             for state_idx, state in brl_states_shape.iterrows():
                 state_initials = state_name_to_initial.get(state['NM_ESTADO'])
@@ -86,8 +84,7 @@ class PlotHandler(object):
                     map(lambda e: state["geometry"].contains(e[1]["geometry"]), brl_cases.iterrows()),
                     brl_cases.index)
                 _save_image(state_shape, brl_cases[county_cases_filter],
-                            get_images_tmp_filename(entrance_date, state_initials))
-            zip_directory_and_rm_src(get_images_tmp_path(entrance_date), get_zip_file_name(entrance_date))
+                            get_images_dst_filename(entrance_date, state_initials))
 
     def _create_df(self, entrance_date: datetime) -> pandas.DataFrame:
         df = self._db_handler.get_cases_by_entrance_date(entrance_date)
