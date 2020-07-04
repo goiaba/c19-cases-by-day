@@ -27,7 +27,7 @@ def get_state_shape_file_path(initials: str, cd_geocuf: str) -> str:
 def get_images_dst_filename(entrance_date: str, initials: str) -> str:
     path = os.path.join(PLOT.get("images_output_path"), initials)
     date_only = time_to_fsstr(mdbstr_to_time(entrance_date))
-    if not os.path.exists(path) or not os.path.isdir():
+    if not os.path.exists(path) or not os.path.isdir(path):
         os.makedirs(path)
     return os.path.join(path, f"{date_only}.png")
 
