@@ -55,18 +55,17 @@ if __name__ == "__main__":
     dataset = scaler.fit_transform(dataset)
 
     # split into train and test sets
-    train_size = int(len(dataset) * 0.67)
-    test_size = len(dataset) - train_size
-    train, test = dataset[0:train_size, :], dataset[train_size:len(dataset), :]
+    train_size = int(len(dataset))
+    train = dataset
 
     # reshape into X=t and Y=t+1
     look_back = 1
     train_x, train_y = create_dataset(train, look_back)
-    test_x, test_y = create_dataset(test, look_back)
+
 
     # reshape input to be [samples, time steps, features]
     train_x = numpy.reshape(train_x, (train_x.shape[0], 1, train_x.shape[1]))
-    test_x = numpy.reshape(test_x, (test_x.shape[0], 1, test_x.shape[1]))
+
 
     # create and fit the LSTM network
     model = Sequential()
@@ -77,32 +76,46 @@ if __name__ == "__main__":
 
     # make predictions
     train_predict = model.predict(train_x)
-    test_predict = model.predict(test_x)
+
+    day1 = model.predict(numpy.reshape(train_predict[train_predict.__len__()-1], (1, 1, 1)))
+    day2 = model.predict(numpy.reshape(day1, (1, 1, 1)))
+    day3 = model.predict(numpy.reshape(day2, (1, 1, 1)))
+    day4 = model.predict(numpy.reshape(day3, (1, 1, 1)))
+    day5 = model.predict(numpy.reshape(day4, (1, 1, 1)))
+    day6 = model.predict(numpy.reshape(day5, (1, 1, 1)))
+    day7 = model.predict(numpy.reshape(day6, (1, 1, 1)))
+    day8 = model.predict(numpy.reshape(day7, (1, 1, 1)))
+    day9 = model.predict(numpy.reshape(day8, (1, 1, 1)))
+    day10 = model.predict(numpy.reshape(day9, (1, 1, 1)))
 
     # invert predictions
     train_predict = scaler.inverse_transform(train_predict)
     train_y = scaler.inverse_transform([train_y])
-    test_predict = scaler.inverse_transform(test_predict)
-    test_y = scaler.inverse_transform([test_y])
 
-    # calculate root mean squared error
-    train_score = math.sqrt(mean_squared_error(train_y[0], train_predict[:, 0]))
-    print('Train Score: %.2f RMSE' % train_score)
-    test_score = math.sqrt(mean_squared_error(test_y[0], test_predict[:, 0]))
-    print('Test Score: %.2f RMSE' % test_score)
+    day1 = scaler.inverse_transform(day1)
+    day2 = scaler.inverse_transform(day2)
+    day3 = scaler.inverse_transform(day3)
+    day4 = scaler.inverse_transform(day4)
+    day5 = scaler.inverse_transform(day5)
+    day6 = scaler.inverse_transform(day6)
+    day7 = scaler.inverse_transform(day7)
+    day8 = scaler.inverse_transform(day8)
+    day9 = scaler.inverse_transform(day9)
+    day10 = scaler.inverse_transform(day10)
 
-    # shift train predictions for plotting
-    train_predict_plot = numpy.empty_like(dataset)
-    train_predict_plot[:, :] = numpy.nan
-    train_predict_plot[look_back:len(train_predict) + look_back, :] = train_predict
+    output = [
+        day1.tolist()[0][0],
+        day2.tolist()[0][0],
+        day3.tolist()[0][0],
+        day4.tolist()[0][0],
+        day5.tolist()[0][0],
+        day6.tolist()[0][0],
+        day7.tolist()[0][0],
+        day8.tolist()[0][0],
+        day9.tolist()[0][0],
+        day10.tolist()[0][0],
+    ]
 
-    # shift test predictions for plotting
-    test_precidt_plot = numpy.empty_like(dataset)
-    test_precidt_plot[:, :] = numpy.nan
-    test_precidt_plot[len(train_predict) + (look_back * 2) + 1:len(dataset) - 1, :] = test_predict
 
-    # plot baseline and predictions
-    plt.plot(scaler.inverse_transform(dataset))
-    plt.plot(train_predict_plot)
-    plt.plot(test_precidt_plot)
-    plt.show()
+    print(trainPredict)
+    print(output)
