@@ -1,15 +1,15 @@
 import json
 import os
 import numpy
-import matplotlib.pyplot as plt
-import math
 import pandas
+from config import PREDICTION
+from datetime import timedelta
 from keras.models import Sequential
 from keras.layers import Dense
 from keras.layers import LSTM
 from sklearn.preprocessing import MinMaxScaler
-from sklearn.metrics import mean_squared_error
 from lstm_dao import LstmDao
+from util import jhustr_to_mdbstr, mdbstr_to_time, time_to_mdbstr
 
 
 # convert an array of values into a dataset matrix
@@ -23,19 +23,18 @@ def create_dataset(ds, lb=1):
 
 
 def get_data():
-    url = 'https://wuhan-coronavirus-api.laeyoung.endpoint.ainize.ai/jhu-edu/timeseries?iso2=BR'
     import requests
-    response = requests.get(url)
+    response = requests.get(PREDICTION.get("url"))
     if response.status_code == 200:
         return json.loads(response.text)[0]
     return {}
 
 
 def get_covid_cases_from_first_case():
-    covid_cases = {k: v.get('confirmed', 0) for k, v in get_data().get('timeseries', {}).items()}
-    for entranceDate in list(covid_cases.keys()):
-        if covid_cases[entranceDate] == 0:
-            del covid_cases[entranceDate]
+    covid_cases = {jhustr_to_mdbstr(k): v.get('confirmed', 0) for k, v in get_data().get('timeseries', {}).items()}
+    for cases_date in list(covid_cases.keys()):
+        if covid_cases[cases_date] == 0:
+            del covid_cases[cases_date]
         else:
             break
     return covid_cases
@@ -62,10 +61,8 @@ if __name__ == "__main__":
     look_back = 1
     train_x, train_y = create_dataset(train, look_back)
 
-
     # reshape input to be [samples, time steps, features]
     train_x = numpy.reshape(train_x, (train_x.shape[0], 1, train_x.shape[1]))
-
 
     # create and fit the LSTM network
     model = Sequential()
@@ -74,23 +71,27 @@ if __name__ == "__main__":
     model.compile(loss='mean_squared_error', optimizer='adam')
     model.fit(train_x, train_y, epochs=100, batch_size=1, verbose=2)
 
-    times = 10
-    output = []
     # make predictions
-    trainPredict = model.predict(train_x)
-    increment = 1 / trainPredict.size
+    train_predict = model.predict(train_x)
+    increment = 1 / train_predict.size
     day = 1
 
     while bool(model.predict(numpy.reshape(day, (1, 1, 1))) < 1):
         day += increment
 
-    for i in range(times):
-        output.append(scaler.inverse_transform(model.predict(numpy.reshape(day, (1, 1, 1)))).tolist()[0][0])
+    predictions = []
+    entrance_date_str = dataframe.index.max()
+    date_prediction = mdbstr_to_time(entrance_date_str)
+    for i in range(PREDICTION.get("days_to_predict", 10)):
+        date_prediction = date_prediction + timedelta(days=1)
+        predictions.append({
+            "idCountry": PREDICTION.get("idCountry"),
+            "predictedCases": scaler.inverse_transform(model.predict(numpy.reshape(day, (1, 1, 1)))).tolist()[0][0],
+            "datePrediction": time_to_mdbstr(date_prediction),
+            "entranceDate": entrance_date_str
+        })
         day += increment
 
-    # invert predictions
-    trainPredict = scaler.inverse_transform(trainPredict)
-    trainY = scaler.inverse_transform([train_y])
-
-    print(trainPredict)
-    print(output)
+    db_handler = LstmDao(host=os.environ.get("DB_HOST", "localhost"), database=os.environ.get("DB_NAME", "covid"),
+                         user=os.environ.get("DB_USER", "root"), password=os.environ.get("DB_PASS", "root"))
+    db_handler.persist_cases_prediction(predictions)
