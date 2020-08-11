@@ -27,3 +27,10 @@ def fsstr_to_time(str_time: str):
 
 def time_to_fsstr(time: datetime):
     return time_to_str(time, config.DATETIME_PATTERN)
+
+
+def jhustr_to_mdbstr(str_date: str) -> str:
+    return time_to_str(
+        str_to_time(str_date, config.PREDICTION.get("jhu_date_pattern")),
+        config.MARIADB_DATETIME_PATTERN
+    )

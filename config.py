@@ -11,3 +11,9 @@ PLOT = {
     "images_tmp_path": "/tmp",
     "shape_files_path": "shapefiles"
 }
+PREDICTION = {
+    "idCountry": 1,
+    "days_to_predict": 10,
+    "url": "https://wuhan-coronavirus-api.laeyoung.endpoint.ainize.ai/jhu-edu/timeseries?iso2=BR",
+    "jhu_date_pattern": "%m/%d/%y"
+}
