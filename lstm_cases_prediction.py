@@ -94,4 +94,5 @@ if __name__ == "__main__":
 
     db_handler = LstmDao(host=os.environ.get("DB_HOST", "localhost"), database=os.environ.get("DB_NAME", "covid"),
                          user=os.environ.get("DB_USER", "root"), password=os.environ.get("DB_PASS", "root"))
+    db_handler.delete_cases_prediction_if_exists(entrance_date_str)
     db_handler.persist_cases_prediction(predictions)

@@ -11,3 +11,8 @@ class LstmDao(MariaDBHandler):
             stmt = """INSERT INTO covid_cases_prediction_by_country (idCountry, predictedCases, datePrediction, entranceDate)
                            VALUES (%(idCountry)s, %(predictedCases)s, %(datePrediction)s, %(entranceDate)s)"""
             self._batch_executor(stmt, data)
+
+    def delete_cases_prediction_if_exists(self, entrance_date_str):
+        stmt = """DELETE FROM covid_cases_prediction_by_country
+                        WHERE entranceDate = %(entranceDate)s"""
+        self._batch_executor(stmt, [{"entranceDate": entrance_date_str}])
